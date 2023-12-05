@@ -6,12 +6,11 @@ defmodule AdventOfCode.DayTwo do
   def first_star(path) do
     File.stream!(path)
     |> Stream.map(fn line ->
-      [_game, tallies] =
-        line
-        |> String.trim()
-        |> String.split(": ")
-
-      get_tallies(tallies) |> Enum.all?(&possible?(&1, @config))
+      line
+      |> String.trim()
+      |> String.replace(~r/^.*: /, "")
+      |> get_tallies()
+      |> Enum.all?(&possible?(&1, @config))
     end)
     |> Enum.with_index(1)
     |> Stream.filter(&elem(&1, 0))
@@ -22,8 +21,13 @@ defmodule AdventOfCode.DayTwo do
   def second_star(path) do
     File.stream!(path)
     |> Stream.map(fn line ->
-      [_game, tallies] = line |> String.trim() |> String.split(": ")
-      get_tallies(tallies) |> minimum_set() |> Map.values() |> Enum.product()
+      line
+      |> String.trim()
+      |> String.replace(~r/^.*: /, "")
+      |> get_tallies()
+      |> minimum_set()
+      |> Map.values()
+      |> Enum.product()
     end)
     |> Enum.sum()
   end

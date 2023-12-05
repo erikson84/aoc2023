@@ -12,7 +12,7 @@ defmodule AdventOfCode.DayThree do
     |> Enum.map(fn pos ->
       get_neighbors(fun_board, pos)
       |> Enum.filter(fn {neighbor, _idx} -> neighbor =~ ~r/[0-9]/ end)
-      |> Enum.map(fn {_num, idx} -> get_number(fun_board, idx) |> String.to_integer() end)
+      |> Enum.map(fn {_num, idx} -> get_number(fun_board, idx) end)
       |> Enum.uniq()
       |> Enum.sum()
     end)
@@ -29,7 +29,7 @@ defmodule AdventOfCode.DayThree do
     |> Enum.map(fn pos ->
       get_neighbors(fun_board, pos)
       |> Enum.filter(fn {neighbor, _idx} -> neighbor =~ ~r/[0-9]/ end)
-      |> Enum.map(fn {_num, idx} -> get_number(fun_board, idx) |> String.to_integer() end)
+      |> Enum.map(fn {_num, idx} -> get_number(fun_board, idx) end)
       |> Enum.uniq()
       |> then(&if(length(&1) == 2, do: Enum.product(&1), else: 0))
     end)
@@ -92,8 +92,10 @@ defmodule AdventOfCode.DayThree do
   end
 
   defp get_number(board, {row, col}) do
-    search_back(board, {row, col - 1}) <>
-      board.({:get, {row, col}}) <> search_forward(board, {row, col + 1})
+    (search_back(board, {row, col - 1}) <>
+       board.({:get, {row, col}}) <>
+       search_forward(board, {row, col + 1}))
+    |> String.to_integer()
   end
 
   defp search_forward(board, {row, col}) do
