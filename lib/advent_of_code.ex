@@ -7,20 +7,14 @@ defmodule AdventOfCode do
     1 => AdventOfCode.DayOne,
     2 => AdventOfCode.DayTwo,
     3 => AdventOfCode.DayThree,
-    4 => DayFour,
-    5 => DayFive
+    4 => AdventOfCode.DayFour,
+    5 => AdventOfCode.DayFive
   }
   @stars %{
     1 => :first_star,
     2 => :second_star
   }
-  @files %{
-    1 => "day_one.txt",
-    2 => "day_two.txt",
-    3 => "day_three.txt",
-    4 => "day_four.txt",
-    5 => "day_five.txt"
-  }
+
   def main(args \\ []) do
     args
     |> parse_args()
@@ -29,35 +23,39 @@ defmodule AdventOfCode do
   end
 
   defp parse_args(args) do
-    {res, _, _} =
+    {res, file, _} =
       args
       |> OptionParser.parse(strict: [day: :integer, star: :integer])
 
-    case res do
-      [] ->
-        {:error, "Usage: --day \\d+ --star (1|2)"}
+    case {res, file} do
+      {[], []} ->
+        {:error, "Usage: --day \\d+ --star (1|2) path/to/file"}
 
-      [day: _, star: star] when star not in 1..2 ->
+      {[day: _, star: star], _file} when star not in 1..2 ->
         {:error, "--star argument must be either 1 or 2."}
 
-      [day: day, star: _] when day not in 1..24 ->
-        {:error, "--day argument must be between 1 and 24."}
+      {[day: day, star: _], _file} when day not in 1..25 ->
+        {:error, "--day argument must be between 1 and 25."}
 
-      res = [day: _, star: _] ->
-        {:ok, res}
-
-      [day: _] ->
+      {[day: _], _file} ->
         {:error, "Must specify --star argument with value 1 or 2."}
 
-      [star: _] ->
+      {[star: _], _file} ->
         {:error, "Must specify --day argument with value between 1 and 24."}
+
+      res = {[day: _, star: _], file} ->
+        if file == [] or not File.exists?(file) do
+          {:error, "You must specify a valid path to the input file."}
+        else
+          {:ok, res}
+        end
     end
   end
 
   defp run_code({:error, msg}), do: msg
 
-  defp run_code({:ok, [day: day, star: star]}) do
-    res = apply(@modules[day], @stars[star], ["./input/" <> @files[day]])
+  defp run_code({:ok, {[day: day, star: star], file}}) do
+    res = apply(@modules[day], @stars[star], [file])
 
     "Results for advent day #{day}, #{@stars[star] |> Atom.to_string() |> String.replace("_", " ")}: #{res}."
   end

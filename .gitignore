@@ -24,3 +24,7 @@ advent_of_code-*.tar
 
 # Temporary files, for example, from tests.
 /tmp/
+
+# Do not include input files, as per AoC instructions
+/input/
+

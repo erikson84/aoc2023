@@ -16,14 +16,16 @@ that allows to run a specific day and star on the provided input.
 To compile the CLI application, you must run:
 
 ```
-> mix escript.build
+mix escript.build
 ```
 
 Then, you can run any implemented solution with:
 
 ```
-> ./advent_of_code --day \d+ --star (1|2)
+./advent_of_code --day \d+ --star (1|2) /path/to/file
 ```
 
-The `--day` argument must be a number between 1 and 24, i.e, for the advent day.
-The `--star` argument must be either a 1 or a 2, for the first or second star.
+* The `--day` argument must be a number between 1 and 24, i.e, for the advent day.
+* The `--star` argument must be either a 1 or a 2, for the first or second star.
+* The `path/to/file` indicates the provided AoC '23 input file.
+
