@@ -1,4 +1,4 @@
-defmodule DayOne do
+defmodule AdventOfCode.DayOne do
   @numbers %{
     "one" => "1",
     "two" => "2",
@@ -11,15 +11,18 @@ defmodule DayOne do
     "nine" => "9"
   }
 
-  def call do
-    case System.argv() do
-      [] -> IO.puts("You must specify an input file.")
-      [path] -> process_input(path) |> IO.puts()
-      _ -> IO.puts("You must specify *ONLY* a file.")
-    end
+  def first_star(path) do
+    File.stream!(path)
+    |> Stream.map(fn line ->
+      fst = Regex.run(~r/[0-9]/, line) |> Enum.at(0)
+      lst = Regex.run(~r/[0-9]/, String.reverse(line)) |> Enum.at(0)
+
+      String.to_integer(fst <> lst)
+    end)
+    |> Enum.sum()
   end
 
-  def process_input(path) do
+  def second_star(path) do
     File.stream!(path)
     |> Stream.map(fn line ->
       line
@@ -44,5 +47,3 @@ defmodule DayOne do
     [@numbers[fst] || fst, @numbers[lst] || lst]
   end
 end
-
-DayOne.call()
