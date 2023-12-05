@@ -6,22 +6,23 @@ defmodule AdventOfCode.DayTwo do
   def first_star(path) do
     File.stream!(path)
     |> Stream.map(fn line ->
-      [game, tallies] =
+      [_game, tallies] =
         line
         |> String.trim()
         |> String.split(": ")
 
-      {get_game(game), get_tallies(tallies) |> Enum.all?(&possible?(&1, @config))}
+      get_tallies(tallies) |> Enum.all?(&possible?(&1, @config))
     end)
-    |> Stream.filter(&elem(&1, 1))
-    |> Stream.map(&elem(&1, 0))
+    |> Enum.with_index(1)
+    |> Stream.filter(&elem(&1, 0))
+    |> Stream.map(&elem(&1, 1))
     |> Enum.sum()
   end
 
   def second_star(path) do
     File.stream!(path)
     |> Stream.map(fn line ->
-      [_game, tallies] = String.trim(line) |> String.split(": ")
+      [_game, tallies] = line |> String.trim() |> String.split(": ")
       get_tallies(tallies) |> minimum_set() |> Map.values() |> Enum.product()
     end)
     |> Enum.sum()
@@ -35,13 +36,9 @@ defmodule AdventOfCode.DayTwo do
   defp minimum_set(tallies) do
     Enum.reduce(tallies, fn map, acc ->
       Map.merge(acc, map, fn _k, val_acc, val_map ->
-        if(val_map > val_acc, do: val_map, else: val_acc)
+        Enum.max([val_map, val_acc])
       end)
     end)
-  end
-
-  defp get_game(str) do
-    Regex.run(~r/Game (\d+)/, str) |> Enum.at(1) |> String.to_integer()
   end
 
   defp get_tallies(str) do
