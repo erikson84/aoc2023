@@ -1,21 +1,29 @@
-# AdventOfCode
+# Advent of Code 2023: Elixir Solutions
 
-**TODO: Add description**
+Solving the [Advent of Code 2023](https://adventofcode.com/2023/) challenges in `Elixir`.
 
-## Installation
+## Structure
 
-If [available in Hex](https://hex.pm/docs/publish), the package can be installed
-by adding `advent_of_code` to your list of dependencies in `mix.exs`:
+The solution for each day is stored in a child module, and the functions required to obtain 
+each solution are named `first_star/1` and `second_star/1`. They each take a 
+`path` argument, which makes it possible to run them with test inputs.
 
-```elixir
-def deps do
-  [
-    {:advent_of_code, "~> 0.1.0"}
-  ]
-end
+## CLI
+
+To obtain the result for each challenge, the project has an `escript` module
+that allows to run a specific day and star on the provided input.
+
+To compile the CLI application, you must run:
+
+```
+> mix escript.build
 ```
 
-Documentation can be generated with [ExDoc](https://github.com/elixir-lang/ex_doc)
-and published on [HexDocs](https://hexdocs.pm). Once published, the docs can
-be found at <https://hexdocs.pm/advent_of_code>.
+Then, you can run any implemented solution with:
 
+```
+> ./advent_of_code --day \d+ --star (1|2)
+```
+
+The `--day` argument must be a number between 1 and 24, i.e, for the advent day.
+The `--star` argument must be either a 1 or a 2, for the first or second star.

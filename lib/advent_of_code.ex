@@ -35,7 +35,7 @@ defmodule AdventOfCode do
 
     case res do
       [] ->
-        {:error, "Usage: --day \d+ --star (1|2)"}
+        {:error, "Usage: --day \\d+ --star (1|2)"}
 
       [day: _, star: star] when star not in 1..2 ->
         {:error, "--star argument must be either 1 or 2."}
