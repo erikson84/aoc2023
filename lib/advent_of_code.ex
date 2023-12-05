@@ -5,8 +5,8 @@ defmodule AdventOfCode do
   """
   @modules %{
     1 => AdventOfCode.DayOne,
-    2 => DayTwo,
-    3 => DayThree,
+    2 => AdventOfCode.DayTwo,
+    3 => AdventOfCode.DayThree,
     4 => DayFour,
     5 => DayFive
   }

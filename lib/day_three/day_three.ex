@@ -1,8 +1,8 @@
-defmodule DayThree do
+defmodule AdventOfCode.DayThree do
   @moduledoc """
   Documentation for `DayThree`.
   """
-  def search_engines(path) do
+  def first_star(path) do
     {:ok, board} = File.read(path)
 
     fun_board = to_board(board)
@@ -19,7 +19,7 @@ defmodule DayThree do
     |> Enum.sum()
   end
 
-  def search_true_engines(path) do
+  def second_star(path) do
     {:ok, board} = File.read(path)
 
     fun_board = to_board(board)

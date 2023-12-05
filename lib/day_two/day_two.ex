@@ -1,9 +1,9 @@
-defmodule DayTwo do
+defmodule AdventOfCode.DayTwo do
   @config %{red: 12, green: 13, blue: 14}
   @moduledoc """
   Documentation for `DayTwo`.
   """
-  def check_valid_games(path) do
+  def first_star(path) do
     File.stream!(path)
     |> Stream.map(fn line ->
       [game, tallies] =
@@ -18,7 +18,7 @@ defmodule DayTwo do
     |> Enum.sum()
   end
 
-  def count_min_sets(path) do
+  def second_star(path) do
     File.stream!(path)
     |> Stream.map(fn line ->
       [_game, tallies] = String.trim(line) |> String.split(": ")
