@@ -28,3 +28,5 @@ advent_of_code-*.tar
 # Do not include input files, as per AoC instructions
 /input/
 
+# Ignore compiled escript file (better to build locally)
+advent_of_code
