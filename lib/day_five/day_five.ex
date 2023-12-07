@@ -59,15 +59,13 @@ defmodule AdventOfCode.DayFive do
 
   defp interpolate(lst), do: interpolate(lst, [])
 
-  defp interpolate([last = {{_, stop}, _}], acc),
-    do:
-      Enum.reverse([{{stop + 1, :inf}, 0}, last | acc])
-      |> then(
-        &if(hd(&1) |> elem(0) |> elem(0) != 0,
-          do: [{{0, (hd(&1) |> elem(0) |> elem(0)) - 1}, 0} | &1],
-          else: &1
-        )
-      )
+  defp interpolate([last = {{_, stop}, _}], acc) do
+    Enum.reverse([{{stop + 1, :inf}, 0}, last | acc])
+    |> case do
+      res = [{{0, _}, _} | _] -> res
+      res = [{{start, _}, _} | _] -> [{{0, start - 1}, 0} | res]
+    end
+  end
 
   defp interpolate([fst = {{_, stop}, _}, snd = {{start, _}, _} | rest], acc)
        when start - stop == 1 do
@@ -84,14 +82,7 @@ defmodule AdventOfCode.DayFive do
         [{start_value + diff, stop_value + diff} | acc]
 
       {{_start_match, stop_match}, diff} ->
-        get_map(
-          {stop_match + 1, stop_value},
-          map,
-          [
-            {start_value + diff, stop_match + diff}
-            | acc
-          ]
-        )
+        get_map({stop_match + 1, stop_value}, map, [{start_value + diff, stop_match + diff} | acc])
     end
   end
 
