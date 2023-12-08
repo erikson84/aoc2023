@@ -29,7 +29,7 @@ defmodule AdventOfCode do
       args
       |> OptionParser.parse(strict: [day: :integer, star: :integer])
 
-    case {res, file} do
+    case {Enum.sort(res), file} do
       {[], []} ->
         {:error, "Usage: --day \\d+ --star (1|2) path/to/file"}
 
