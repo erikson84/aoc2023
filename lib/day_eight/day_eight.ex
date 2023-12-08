@@ -22,7 +22,7 @@ defmodule AdventOfCode.DayEight do
     map = get_network_map(map_str)
 
     Map.keys(map)
-    |> Enum.filter(fn node -> String.last(node) == "A" end)
+    |> Enum.filter(&String.ends_with?(&1, "A"))
     |> Enum.map(fn start -> Task.async(fn -> traverse_network(map, path, start) end) end)
     |> Task.await_many()
     |> lcm()
