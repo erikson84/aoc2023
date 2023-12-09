@@ -28,8 +28,9 @@ defmodule AdventOfCode.DayNine do
       line
       |> String.split(~r/\s+/)
       |> Enum.map(&String.to_integer/1)
+      |> Enum.reverse()
       |> find_equal_seq()
-      |> predict_prev()
+      |> predict_next()
     end)
     |> Enum.sum()
   end
@@ -39,13 +40,6 @@ defmodule AdventOfCode.DayNine do
 
   defp predict_next([next | rest], acc) do
     predict_next(rest, acc + List.last(next))
-  end
-
-  defp predict_prev(seqs), do: predict_prev(seqs, 0)
-  defp predict_prev([], acc), do: acc
-
-  defp predict_prev([next | rest], acc) do
-    predict_prev(rest, hd(next) - acc)
   end
 
   defp find_equal_seq(seq), do: find_equal_seq(seq, [])
