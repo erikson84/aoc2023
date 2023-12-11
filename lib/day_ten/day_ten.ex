@@ -3,6 +3,13 @@ defmodule AdventOfCode.DayTen do
   Implements solutions for the first and second star
   of `DayTen` for AoC '23.
   """
+
+  @doc """
+  Solve the first challenge by traversing the pipes following
+  each junction neccessary direction, considering the previous step.
+  Finally, count the number of cells (minus one, since the start cell
+  is counted twice) and divide by two to find the farthest cell number.
+  """
   def first_star(path) do
     {:ok, str} = File.read(path)
 
@@ -11,6 +18,26 @@ defmodule AdventOfCode.DayTen do
     |> traverse_pipes()
     |> Enum.count()
     |> then(&div(&1 - 1, 2))
+  end
+
+  @doc """
+  From the cell path obtained from the first challenge, apply the shoelace
+  algorithm to find the area enclosed by the pipes then apply Pick's theorem
+  to relate the area to the inner points:
+
+  $A = i + b/2 - 1$
+  """
+  def second_star(path) do
+    {:ok, str} = File.read(path)
+
+    boundaries =
+      str
+      |> map_of_str()
+      |> traverse_pipes()
+
+    area = shoelace_area(boundaries, 0)
+    b = Enum.count(boundaries) - 1
+    area - div(b, 2) + 1
   end
 
   defp map_of_str(str) do
@@ -107,5 +134,11 @@ defmodule AdventOfCode.DayTen do
     else
       traverse_pipes(map, [map.({:at, {row, col + 1}}) | acc])
     end
+  end
+
+  defp shoelace_area([_], acc), do: if(acc < 0, do: div(-acc, 2), else: div(acc, 2))
+
+  defp shoelace_area([{_, {r1, c1}}, nxt = {_, {r2, c2}} | rest], acc) do
+    shoelace_area([nxt | rest], acc + (r1 * c2 - r2 * c1))
   end
 end
