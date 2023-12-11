@@ -117,3 +117,15 @@ defmodule AdventOfCode.DayTenTest do
     assert AdventOfCode.DayTen.second_star("./test/input/day_ten.txt") == 1
   end
 end
+
+defmodule AdventOfCode.DayElevenTest do
+  use ExUnit.Case
+
+  test "Day eleven, first star" do
+    assert AdventOfCode.DayEleven.first_star("./test/input/day_eleven.txt") == 374
+  end
+
+  test "Day eleven, second star" do
+    assert AdventOfCode.DayEleven.second_star("./test/input/day_eleven.txt") == 82_000_210
+  end
+end
