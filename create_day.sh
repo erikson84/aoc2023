@@ -36,5 +36,5 @@ fi
 if [ -f "./test/input/day_$1.txt" ]; then
 	echo "./test/input/day_$1.txt already exists."
 else
-	touch ./test/input/day_$1.ex
+	touch ./test/input/day_$1.txt
 fi
