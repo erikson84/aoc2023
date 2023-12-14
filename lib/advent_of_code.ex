@@ -14,7 +14,8 @@ defmodule AdventOfCode do
     8 => AdventOfCode.DayEight,
     9 => AdventOfCode.DayNine,
     10 => AdventOfCode.DayTen,
-    11 => AdventOfCode.DayEleven
+    11 => AdventOfCode.DayEleven,
+    12 => AdventOfCode.DayTwelve
   }
   @stars %{
     1 => :first_star,
