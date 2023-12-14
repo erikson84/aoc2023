@@ -31,6 +31,20 @@ defmodule AdventOfCode.DayThirteen do
     end
   end
 
+  defp compare(map, line_number) do
+    {line_before, line_after} = Enum.split(map, line_number)
+    compare_lines(Enum.reverse(line_before), line_after)
+  end
+
+  defp compare_lines([], _), do: true
+  defp compare_lines(_, []), do: true
+
+  defp compare_lines([line_before | lines_before], [line_after | lines_after])
+       when line_before == line_after,
+       do: compare_lines(lines_before, lines_after)
+
+  defp compare_lines(_, _), do: false
+
   defp find_mirror_with_smudge(map) do
     equal_with_smudge =
       for {line, idx1} <- Enum.with_index(map, 1),
@@ -54,28 +68,6 @@ defmodule AdventOfCode.DayThirteen do
     end
   end
 
-  defp compare(map, line_number) do
-    {line_before, line_after} = Enum.split(map, line_number)
-    compare_lines(Enum.reverse(line_before), line_after)
-  end
-
-  defp compare_lines([], _), do: true
-  defp compare_lines(_, []), do: true
-
-  defp compare_lines([line_before | lines_before], [line_after | lines_after])
-       when line_before == line_after,
-       do: compare_lines(lines_before, lines_after)
-
-  defp compare_lines(_, _), do: false
-
-  def transpose(map) do
-    map |> Enum.map(&String.graphemes/1) |> Enum.zip_with(& &1) |> Enum.map(&Enum.join/1)
-  end
-
-  defp process_map(raw_map) do
-    raw_map |> String.split("\n\n", trim: true) |> Enum.map(&String.split(&1, "\n", trim: true))
-  end
-
   defp distance("", _, acc), do: acc
 
   defp distance(<<fst, str1::binary>>, <<snd, str2::binary>>, acc) when fst == snd do
@@ -84,5 +76,13 @@ defmodule AdventOfCode.DayThirteen do
 
   defp distance(<<_, str1::binary>>, <<_, str2::binary>>, acc) do
     distance(str1, str2, acc + 1)
+  end
+
+  def transpose(map) do
+    map |> Enum.map(&String.graphemes/1) |> Enum.zip_with(& &1) |> Enum.map(&Enum.join/1)
+  end
+
+  defp process_map(raw_map) do
+    raw_map |> String.split("\n\n", trim: true) |> Enum.map(&String.split(&1, "\n", trim: true))
   end
 end
