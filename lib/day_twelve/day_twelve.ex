@@ -94,12 +94,9 @@ defmodule AdventOfCode.DayTwelve do
   defp matches("#" <> string, states, acc) do
     Enum.reduce(acc, %{}, fn
       {state, cont}, new_acc ->
-        new_acc
-        |> then(fn new_acc ->
-          if state + 1 < length(states) and Enum.at(states, state + 1) == "#",
-            do: Map.update(new_acc, state + 1, cont, &(&1 + cont)),
-            else: new_acc
-        end)
+        if state + 1 < length(states) and Enum.at(states, state + 1) == "#",
+          do: Map.update(new_acc, state + 1, cont, &(&1 + cont)),
+          else: new_acc
     end)
     |> then(&matches(string, states, &1))
   end
