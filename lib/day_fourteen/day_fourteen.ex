@@ -3,6 +3,9 @@ defmodule AdventOfCode.DayFourteen do
     Implements solutions for the first and second star
     of `DayTwelve` for AoC '23. 
   """
+  @max_iter 1_000
+  @max_cycles 1_000_000_000
+
   def first_star(path) do
     {:ok, file} = File.read(path)
 
@@ -19,8 +22,21 @@ defmodule AdventOfCode.DayFourteen do
 
     file
     |> String.split("\n", trim: true)
-    |> then(&Enum.reduce(1..1_000, {&1, %{}}, fn _, {map, cache} -> cycle(map, cache) end))
-    |> elem(0)
+    |> then(
+      &Enum.reduce_while(1..@max_iter, [&1], fn _, [last | rest] ->
+        if last in rest do
+          list = Enum.reverse(rest)
+          first_idx = Enum.find_index(list, fn el -> el == last end)
+          last_idx = length(list)
+          cycle_length = last_idx - first_idx + 1
+          {:halt, Enum.at(list, first_idx + rem(@max_cycles - first_idx + 1, cycle_length))}
+        else
+          {:cont, [cycle(last), last | rest]}
+        end
+      end)
+    )
+
+    # |> elem(0)
     |> count_stones()
   end
 
@@ -48,15 +64,6 @@ defmodule AdventOfCode.DayFourteen do
     Enum.map(map, &String.graphemes/1)
     |> Enum.zip_with(& &1)
     |> Enum.map(&Enum.join/1)
-  end
-
-  defp cycle(map, cache) do
-    if val = cache[map] do
-      {val, cache}
-    else
-      val = cycle(map)
-      {val, Map.put(cache, map, val)}
-    end
   end
 
   defp cycle(map) do
