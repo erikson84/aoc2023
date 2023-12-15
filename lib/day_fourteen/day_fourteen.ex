@@ -24,12 +24,12 @@ defmodule AdventOfCode.DayFourteen do
     |> String.split("\n", trim: true)
     |> then(
       &Enum.reduce_while(1..@max_iter, [&1], fn _, [last | rest] ->
-        if last in rest do
+        if Enum.member?(rest, last) do
           list = Enum.reverse(rest)
           first_idx = Enum.find_index(list, fn el -> el == last end)
-          last_idx = length(list)
+          last_idx = length(list) - 1
           cycle_length = last_idx - first_idx + 1
-          {:halt, Enum.at(list, first_idx + rem(@max_cycles - first_idx + 1, cycle_length))}
+          {:halt, Enum.at(list, first_idx + rem(@max_cycles - first_idx, cycle_length))}
         else
           {:cont, [cycle(last), last | rest]}
         end
