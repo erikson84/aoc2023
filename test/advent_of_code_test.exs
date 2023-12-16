@@ -141,3 +141,39 @@ defmodule AdventOfCode.DayTwelveTest do
     assert AdventOfCode.DayTwelve.second_star("./test/input/day_twelve.txt") == 525_152
   end
 end
+
+defmodule AdventOfCode.DayThirteenTest do
+  use ExUnit.Case
+
+  test "Day thirteen, first star" do
+    assert AdventOfCode.DayThirteen.first_star("./test/input/day_thirteen.txt") == 405
+  end
+
+  test "Day thirteen, second star" do
+    assert AdventOfCode.DayThirteen.second_star("./test/input/day_thirteen.txt") == 400
+  end
+end
+
+defmodule AdventOfCode.DayFourteenTest do
+  use ExUnit.Case
+
+  test "Day fourteen, first star" do
+    assert AdventOfCode.DayFourteen.first_star("./test/input/day_fourteen.txt") == 136
+  end
+
+  test "Day fourteen, second star" do
+    assert AdventOfCode.DayFourteen.second_star("./test/input/day_fourteen.txt") == 64
+  end
+end
+
+defmodule AdventOfCode.DayFifteenTest do
+  use ExUnit.Case
+
+  test "Day fifteen, first star" do
+    assert AdventOfCode.DayFifteen.first_star("./test/input/day_fifteen.txt") == 1320
+  end
+
+  test "Day fifteen, second star" do
+    assert AdventOfCode.DayFifteen.second_star("./test/input/day_fifteen.txt") == 145
+  end
+end

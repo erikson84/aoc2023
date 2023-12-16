@@ -35,8 +35,6 @@ defmodule AdventOfCode.DayFourteen do
         end
       end)
     )
-
-    # |> elem(0)
     |> count_stones()
   end
 
