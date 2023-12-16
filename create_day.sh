@@ -1,6 +1,13 @@
 #! /bin/zsh
 
 day=$1
+
+if [ -z "$day" ]; then
+  echo "Usage: 
+>./create_day.sh day_name"
+  exit 0
+fi
+
 echo "Creating module day_$1.ex..."
 if [ -d "./lib/day_$1" ]; then
 	echo "./lib/day_$1 already exists."
@@ -16,7 +23,7 @@ fi
 
 echo "Creating input file day_$1.txt..."
 if [ -d "./input" ]; then
-	echo "./lib/day_$1 already exists."
+	echo "./input already exists."
 else
 	mkdir ./input
 fi
