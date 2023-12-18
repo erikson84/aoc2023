@@ -33,32 +33,27 @@ defmodule AdventOfCode.DaySeventeen do
   end
 
   defp update_proposals(map, target, step_range, visited, acc) do
-    {prev = {loss, {row, col}, {dir, steps}}, rest} = :gb_sets.take_smallest(acc)
+    {prev = {loss, pos, dir}, rest} = :gb_sets.take_smallest(acc)
 
-    if {row, col} == target do
+    if pos == target do
       loss
     else
       new_props =
         step(map, step_range, prev)
-        |> Enum.map(fn {heat, pos, dir} ->
-          {loss + heat, pos, dir}
+        |> Enum.map(fn {heat, new_pos, new_dir} ->
+          {loss + heat, new_pos, new_dir}
         end)
-        |> Enum.reject(fn {_, pos, {new_dir, new_steps}} ->
-          MapSet.member?(visited, {pos, new_dir, new_steps})
+        |> Enum.reject(fn {_, new_pos, new_dir} ->
+          MapSet.member?(visited, {new_pos, new_dir})
         end)
-
-      acc =
-        new_props
         |> Enum.reduce(rest, fn el, acc -> :gb_sets.add_element(el, acc) end)
-
-      visited = MapSet.put(visited, {{row, col}, dir, steps})
 
       update_proposals(
         map,
         target,
         step_range,
-        visited,
-        acc
+        MapSet.put(visited, {pos, dir}),
+        new_props
       )
     end
   end
