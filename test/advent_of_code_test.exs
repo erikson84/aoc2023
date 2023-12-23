@@ -231,12 +231,25 @@ end
 defmodule AdventOfCode.DayTwentyTest do
   use ExUnit.Case
 
-  test "Day twenty, first starm, first example" do
+  test "Day twenty, first star, first example" do
     assert AdventOfCode.DayTwenty.first_star("./test/input/day_twenty_first.txt") == 32_000_000
   end
 
-  test "Day twenty, first star, first example" do
+  test "Day twenty, first star, second example" do
     assert AdventOfCode.DayTwenty.first_star("./test/input/day_twenty_second.txt") ==
              11_687_500
+  end
+end
+
+defmodule AdventOfCode.DayTwentyOneTest do
+  use ExUnit.Case
+
+  test "Day twenty one, first star" do
+    assert AdventOfCode.DayTwentyOne.first_star("./test/input/day_twenty_one.txt") == 4056
+  end
+
+  test "Day twenty, second star" do
+    assert AdventOfCode.DayTwentyOne.second_star("./test/input/day_twenty_one.txt") ==
+             3_724_206_447_513
   end
 end
