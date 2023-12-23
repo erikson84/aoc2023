@@ -36,36 +36,61 @@ defmodule AdventOfCode.DayTwenty do
       end)
     )
     |> elem(1)
-    |> Enum.frequencies()
+    |> Enum.frequencies_by(fn {_, _, pulse} -> pulse end)
     |> Map.values()
+    |> Enum.product()
+  end
+
+  def second_star(path) do
+    {:ok, file} = File.read(path)
+
+    file
+    |> String.split("\n", trim: true)
+    |> Enum.map(&process_module/1)
+    |> Map.new()
+    |> find_inputs()
+    |> then(
+      &Enum.reduce(1..5000, {&1, []}, fn el, {mod, hist} ->
+        {update_mod, new_hist} = process_pulse(mod, [], [{"broadcaster", "button", :low}])
+        {update_mod, [{el, new_hist} | hist]}
+      end)
+    )
+    |> elem(1)
+    |> Enum.map(fn {press, list} ->
+      {press, Enum.filter(list, &match?({"xm", _, :high}, &1)) |> Enum.uniq()}
+    end)
+    |> Enum.reject(fn
+      {_, ls} -> ls == []
+    end)
+    |> Enum.map(fn {press, _} -> press end)
     |> Enum.product()
   end
 
   defp process_pulse(modules, history, []), do: {modules, history}
 
-  defp process_pulse(modules, history, [{target, origin, pulse} | acc]) do
+  defp process_pulse(modules, history, [message = {target, origin, pulse} | acc]) do
     case modules[target] do
       %FlipFlop{state: :broadcaster, targets: targets} ->
         process_pulse(
           modules,
-          [pulse | history],
+          [message | history],
           acc ++ Enum.map(targets, fn dest -> {dest, target, pulse} end)
         )
 
       %FlipFlop{} when pulse == :high ->
-        process_pulse(modules, [pulse | history], acc)
+        process_pulse(modules, [message | history], acc)
 
       %FlipFlop{state: :off, targets: targets} ->
         process_pulse(
           put_in(modules, [target, Access.key!(:state)], :on),
-          [pulse | history],
+          [message | history],
           acc ++ Enum.map(targets, fn dest -> {dest, target, :high} end)
         )
 
       %FlipFlop{state: :on, targets: targets} ->
         process_pulse(
           put_in(modules, [target, Access.key!(:state)], :off),
-          [pulse | history],
+          [message | history],
           acc ++ Enum.map(targets, fn dest -> {dest, target, :low} end)
         )
 
@@ -74,7 +99,7 @@ defmodule AdventOfCode.DayTwenty do
 
         process_pulse(
           update_modules,
-          [pulse | history],
+          [message | history],
           acc ++
             Enum.map(targets, fn dest ->
               if Enum.all?(Map.values(update_modules[target].state), &(&1 == :high)),
@@ -84,7 +109,7 @@ defmodule AdventOfCode.DayTwenty do
         )
 
       nil ->
-        process_pulse(modules, [pulse | history], acc)
+        process_pulse(modules, [message | history], acc)
     end
   end
 
@@ -103,12 +128,11 @@ defmodule AdventOfCode.DayTwenty do
   end
 
   defp find_inputs(modules) do
-    for {name_conj, conj = %Conjunction{}} <- modules,
+    for {name_conj, %Conjunction{}} <- modules,
         {name, module} <- modules,
         name_conj in module.targets,
-        into: %{} do
-      {name_conj, put_in(conj, [Access.key!(:state), name], :low)}
+        reduce: modules do
+      acc -> put_in(acc, [name_conj, Access.key!(:state), name], :low)
     end
-    |> then(&Map.merge(modules, &1))
   end
 end
