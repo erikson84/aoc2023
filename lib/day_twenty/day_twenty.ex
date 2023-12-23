@@ -29,14 +29,21 @@ defmodule AdventOfCode.DayTwenty do
     |> Enum.map(&process_module/1)
     |> Map.new()
     |> find_inputs()
-    |> process_pulse([], [{"broadcaster", "button", :low}])
+    |> then(
+      &Enum.reduce(1..1000, {&1, []}, fn _, {mod, hist} ->
+        {update_mod, new_hist} = process_pulse(mod, [], [{"broadcaster", "button", :low}])
+        {update_mod, hist ++ new_hist}
+      end)
+    )
+    |> elem(1)
+    |> Enum.frequencies()
+    |> Map.values()
+    |> Enum.product()
   end
 
-  defp process_pulse(_, history, []), do: history
+  defp process_pulse(modules, history, []), do: {modules, history}
 
   defp process_pulse(modules, history, [{target, origin, pulse} | acc]) do
-    IO.inspect(acc)
-
     case modules[target] do
       %FlipFlop{state: :broadcaster, targets: targets} ->
         process_pulse(
@@ -75,6 +82,9 @@ defmodule AdventOfCode.DayTwenty do
                 else: {dest, target, :high}
             end)
         )
+
+      nil ->
+        process_pulse(modules, [pulse | history], acc)
     end
   end
 
