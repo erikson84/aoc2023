@@ -25,7 +25,6 @@ defmodule AdventOfCode.DayFour do
     |> Enum.sum()
   end
 
-  # Enum.sum(Map.values(IO.inspect(acc)))
   defp process_card([], acc), do: acc |> Map.values() |> Enum.sum()
 
   defp process_card([{str, idx} | cards], acc) do

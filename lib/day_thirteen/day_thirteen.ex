@@ -18,7 +18,6 @@ defmodule AdventOfCode.DayThirteen do
     raw_map
     |> process_map()
     |> Enum.map(&find_mirror_with_smudge/1)
-    |> IO.inspect()
     |> Enum.sum()
   end
 
