@@ -33,7 +33,7 @@ defmodule AdventOfCode.DayTwentyTwo do
   defp check_desintegrate(blocks) do
     for block <- blocks,
         desintegrated_blocks = blocks -- [block],
-        desintegrated_blocks == mark_supported(desintegrated_blocks, []) do
+        desintegrated_blocks == mark_supported(desintegrated_blocks, MapSet.new(), []) do
       block
     end
   end
@@ -41,43 +41,39 @@ defmodule AdventOfCode.DayTwentyTwo do
   defp check_chain(blocks) do
     for block <- blocks,
         desintegrated_blocks = blocks -- [block] do
-      Enum.count(mark_supported(desintegrated_blocks, []), fn block ->
+      Enum.count(mark_supported(desintegrated_blocks, MapSet.new(), []), fn block ->
         not Enum.member?(desintegrated_blocks, block)
       end)
     end
   end
 
   defp mark_supported(blocks) do
-    blocks =
-      Enum.map(blocks, fn {block, idx} -> {expand_block(block), idx} end)
-      |> Enum.sort_by(fn {list, _idx} ->
-        Enum.min(Enum.map(list, fn {x, y, z} -> {z, y, x} end))
-      end)
-
-    mark_supported(blocks, [])
+    blocks
+    |> Enum.sort_by(fn {{{x, y, z}, _}, _idx} -> {z, y, x} end)
+    |> mark_supported(MapSet.new(), [])
   end
 
-  defp mark_supported([], acc),
-    do:
-      Enum.sort_by(acc, fn {list, _idx} ->
-        Enum.min(Enum.map(list, fn {x, y, z} -> {z, y, x} end))
-      end)
+  defp mark_supported([], _, acc),
+    do: acc |> Enum.sort_by(fn {{{x, y, z}, _}, _idx} -> {z, y, x} end)
 
-  defp mark_supported([{block, idx} | blocks], acc) do
-    if Enum.any?(block, fn {_x, _y, z} -> z == 1 end) do
-      mark_supported(blocks, [{block, idx} | acc])
+  defp mark_supported([{block = {{x1, y1, z1}, {x2, y2, z2}}, idx} | blocks], supported, acc) do
+    if z1 == 1 do
+      mark_supported(
+        blocks,
+        Enum.reduce(expand_block(block), supported, fn coord, acc -> MapSet.put(acc, coord) end),
+        [{block, idx} | acc]
+      )
     else
-      step_down =
-        Enum.map(block, fn {x, y, z} -> {x, y, z - 1} end)
+      step_down = {{x1, y1, z1 - 1}, {x2, y2, z2 - 1}}
 
-      if Enum.any?(step_down, fn coord ->
-           Enum.any?(List.flatten(Enum.map(acc, fn {list, _} -> list end)), fn sup_coord ->
-             sup_coord == coord
-           end)
-         end) do
-        mark_supported(blocks, [{block, idx} | acc])
+      if Enum.any?(expand_block(step_down), fn coord -> coord in supported end) do
+        mark_supported(
+          blocks,
+          Enum.reduce(expand_block(block), supported, fn coord, acc -> MapSet.put(acc, coord) end),
+          [{block, idx} | acc]
+        )
       else
-        mark_supported([{step_down, idx} | blocks], acc)
+        mark_supported([{step_down, idx} | blocks], supported, acc)
       end
     end
   end
