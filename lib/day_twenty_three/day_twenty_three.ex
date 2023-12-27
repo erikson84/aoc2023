@@ -11,18 +11,11 @@ defmodule AdventOfCode.DayTwentyThree do
       str
       |> map_of_str()
 
-    start =
-      Enum.find_value(map, fn {{row, col}, val} -> if val == "." && row == 0, do: {row, col} end)
+    {start, target} = Enum.min_max(Map.keys(map))
 
-    target =
-      Enum.find_value(map, fn {{row, col}, val} ->
-        last_row = Enum.max(Map.keys(map)) |> elem(0)
-        if val == "." && row == last_row, do: {row, col}
-      end)
-
-    find_paths(map, target, MapSet.new(), [start])
-    |> List.flatten()
-    |> Enum.max()
+    build_graph(map)
+    |> build_reduced_graph(start, target)
+    |> find_paths(target, MapSet.new(), {start, 0})
   end
 
   def second_star(path) do
@@ -31,47 +24,39 @@ defmodule AdventOfCode.DayTwentyThree do
     map =
       str
       |> map_of_str()
-      |> Map.new(fn {coord, val} ->
-        if val in ["<", ">", "^", "v", "."], do: {coord, "."}, else: {coord, val}
-      end)
+      |> Map.new(fn {coord, _} -> {coord, "."} end)
 
-    start =
-      Enum.find_value(map, fn {{row, col}, val} -> if val == "." && row == 0, do: {row, col} end)
+    {start, target} = Enum.min_max(Map.keys(map))
 
-    target =
-      Enum.find_value(map, fn {{row, col}, val} ->
-        last_row = Enum.max(Map.keys(map)) |> elem(0)
-        if val == "." && row == last_row, do: {row, col}
-      end)
-
-    find_paths(map, target, MapSet.new(), [start])
-    |> List.flatten()
-    |> Enum.max()
+    build_graph(map)
+    |> build_reduced_graph(start, target)
+    |> find_paths(target, MapSet.new(), {start, 0})
   end
 
-  defp find_paths(_map, target, _visited, [target | path]) do
-    length([target | path]) - 1
+  defp find_paths(_map, target, _visited, {target, steps}) do
+    steps
   end
 
-  defp find_paths(map, target, visited, [{row, col} | path]) do
-    neighbors = get_neighbors(map, {row, col}) |> Enum.reject(&(&1 in visited))
+  defp find_paths(map, target, visited, {{row, col}, steps}) do
+    neighbors = Map.get(map, {row, col}) |> Enum.reject(fn {coord, _} -> coord in visited end)
 
     case neighbors do
       [] ->
         0
 
-      [step] ->
-        find_paths(map, target, MapSet.put(visited, {row, col}), [step, {row, col} | path])
+      [{coord, dist}] ->
+        find_paths(map, target, MapSet.put(visited, {row, col}), {coord, steps + dist})
 
-      steps ->
-        Enum.map(steps, fn {row_step, col_step} ->
+      step_lst ->
+        Enum.map(step_lst, fn {{row_step, col_step}, dist} ->
           find_paths(
             map,
             target,
             MapSet.put(visited, {row, col}),
-            [{row_step, col_step}, {row, col} | path]
+            {{row_step, col_step}, steps + dist}
           )
         end)
+        |> Enum.max()
     end
   end
 
@@ -86,15 +71,52 @@ defmodule AdventOfCode.DayTwentyThree do
       end
 
     for {row_step, col_step} <- cands,
-        val = map[{row_step, col_step}],
-        !val || val != "#" do
+        Map.has_key?(map, {row_step, col_step}) do
       {row_step, col_step}
+    end
+  end
+
+  defp build_graph(map) do
+    map
+    |> Enum.map(fn {coord, _} -> {coord, get_neighbors(map, coord)} end)
+    |> Map.new()
+  end
+
+  defp build_reduced_graph(graph, start, target) do
+    forks =
+      graph
+      |> Enum.filter(fn {_coord, children} -> length(children) > 2 end)
+      |> Enum.map(&elem(&1, 0))
+      |> Enum.concat([start, target])
+      |> MapSet.new()
+
+    Enum.map(forks, fn coord ->
+      next =
+        Enum.flat_map(graph[coord], fn coord_step ->
+          get_next(coord_step, coord, graph, forks, 1)
+        end)
+
+      {coord, next}
+    end)
+    |> Map.new()
+  end
+
+  defp get_next(cur, prev, graph, forks, len) do
+    if cur in forks do
+      [{cur, len}]
+    else
+      case graph[cur] do
+        [nxt] when nxt == prev -> []
+        [nxt] -> get_next(nxt, cur, graph, forks, len + 1)
+        [n1, n2] -> get_next(if(n1 == prev, do: n2, else: n1), cur, graph, forks, len + 1)
+      end
     end
   end
 
   defp map_of_str(str) do
     for {row, row_idx} <- String.split(str, "\n", trim: true) |> Enum.with_index(),
         {el, col_idx} <- String.graphemes(row) |> Enum.with_index(),
+        el != "#",
         into: %{} do
       {{row_idx, col_idx}, el}
     end
