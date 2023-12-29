@@ -4,7 +4,7 @@ defmodule AdventOfCode.DayTwentyFour do
   of `DayTwentyFour` for AoC '23.
 
   For the second challenge, the code generate the adequate system
-  of equations, which are solved elsewhere.
+  of equations, which are solved (--elsewhere--) with custom solver.
   Equations based on 
   https://github.com/ash42/adventofcode/blob/main/adventofcode2023/src/nl/michielgraat/adventofcode2023/day24/Day24.java
   """
