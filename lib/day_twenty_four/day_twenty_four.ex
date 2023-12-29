@@ -2,6 +2,11 @@ defmodule AdventOfCode.DayTwentyFour do
   @moduledoc """
   Implements solutions for the first and second star
   of `DayTwentyFour` for AoC '23.
+
+  For the second challenge, the code generate the adequate system
+  of equations, which are solved elsewhere.
+  Equations based on 
+  https://github.com/ash42/adventofcode/blob/main/adventofcode2023/src/nl/michielgraat/adventofcode2023/day24/Day24.java
   """
   @min 200_000_000_000_000
   @max 400_000_000_000_000
@@ -18,6 +23,17 @@ defmodule AdventOfCode.DayTwentyFour do
       _ -> false
     end)
     |> Enum.count()
+  end
+
+  def second_star(path) do
+    {:ok, file} = File.read(path)
+
+    file
+    |> String.split("\n", trim: true)
+    |> Enum.map(&parse_pos_vel/1)
+    |> Enum.take(4)
+    |> Enum.chunk_every(2, 1, :discard)
+    |> Enum.flat_map(fn pair -> build_equation(pair) end)
   end
 
   defp compare_pairs([]), do: []
@@ -61,6 +77,20 @@ defmodule AdventOfCode.DayTwentyFour do
     {x1, _} = new_pos
     t = (x1 - x0) / dx
     t
+  end
+
+  defp build_equation([{pos_1, vel_1}, {pos_2, vel_2}]) do
+    {x_1, y_1, z_1} = pos_1
+    {dx_1, dy_1, dz_1} = vel_1
+    {x_2, y_2, z_2} = pos_2
+    {dx_2, dy_2, dz_2} = vel_2
+    constant_xy = y_1 * dx_1 + x_2 * dy_2 - x_1 * dy_1 - y_2 * dx_2
+    constant_xz = z_1 * dx_1 + x_2 * dz_2 - x_1 * dz_1 - z_2 * dx_2
+
+    [
+      {[dy_2 - dy_1, dx_1 - dx_2, 0, y_1 - y_2, x_2 - x_1, 0], constant_xy},
+      {[dz_2 - dz_1, 0, dx_1 - dx_2, z_1 - z_2, 0, x_2 - x_1], constant_xz}
+    ]
   end
 
   defp parse_pos_vel(line) do
