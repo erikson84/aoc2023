@@ -34,6 +34,11 @@ defmodule AdventOfCode.DayTwentyFour do
     |> Enum.take(4)
     |> Enum.chunk_every(2, 1, :discard)
     |> Enum.flat_map(fn pair -> build_equation(pair) end)
+    |> gaussian_elimination()
+    |> solve()
+    |> Enum.take(3)
+    |> Enum.map(&round/1)
+    |> Enum.sum()
   end
 
   defp compare_pairs([]), do: []
@@ -88,9 +93,82 @@ defmodule AdventOfCode.DayTwentyFour do
     constant_xz = z_1 * dx_1 + x_2 * dz_2 - x_1 * dz_1 - z_2 * dx_2
 
     [
-      {[dy_2 - dy_1, dx_1 - dx_2, 0, y_1 - y_2, x_2 - x_1, 0], constant_xy},
-      {[dz_2 - dz_1, 0, dx_1 - dx_2, z_1 - z_2, 0, x_2 - x_1], constant_xz}
+      [dy_2 - dy_1, dx_1 - dx_2, 0, y_1 - y_2, x_2 - x_1, 0, constant_xy],
+      [dz_2 - dz_1, 0, dx_1 - dx_2, z_1 - z_2, 0, x_2 - x_1, constant_xz]
     ]
+  end
+
+  defp gaussian_elimination(matrix) do
+    {rows, cols} = {Enum.count(matrix), Enum.count(Enum.at(matrix, 0))}
+    gaussian_elimination(matrix, {0, rows}, {0, cols - 1})
+  end
+
+  defp gaussian_elimination(matrix, {rows, rows}, {cols, cols}), do: matrix
+
+  defp gaussian_elimination(matrix, {pivot_row, rows}, {pivot_col, cols}) do
+    {max, idx_max} =
+      Enum.map(pivot_row..(rows - 1), fn row ->
+        {matrix |> Enum.at(row) |> Enum.at(pivot_col), row}
+      end)
+      |> Enum.max()
+
+    if max == 0 do
+      gaussian_elimination(matrix, {pivot_row, rows}, {pivot_col + 1, cols})
+    else
+      swap_matrix =
+        swap_rows(matrix, pivot_row, idx_max)
+
+      gaussian_elimination(
+        update_matrix(swap_matrix, pivot_row, pivot_col),
+        {pivot_row + 1, rows},
+        {pivot_col + 1, cols}
+      )
+    end
+  end
+
+  defp swap_rows(matrix, idx_1, idx_2) do
+    matrix
+    |> Enum.with_index()
+    |> Enum.map(fn
+      {row, ^idx_1} -> {row, idx_2}
+      {row, ^idx_2} -> {row, idx_1}
+      res -> res
+    end)
+    |> Enum.sort_by(&elem(&1, 1))
+    |> Enum.map(fn {row, _} -> row end)
+  end
+
+  defp update_matrix(matrix, pivot_row, pivot_col) do
+    for {row, row_idx} <- matrix |> Enum.with_index() do
+      if row_idx > pivot_row do
+        ratio = Enum.at(row, pivot_col) / (matrix |> Enum.at(pivot_row) |> Enum.at(pivot_col))
+
+        for {el, col_idx} <- row |> Enum.with_index() do
+          if col_idx == pivot_col do
+            0.0
+          else
+            el - (Enum.at(matrix, pivot_row) |> Enum.at(col_idx)) * ratio
+          end
+        end
+      else
+        for el <- row do
+          el
+        end
+      end
+    end
+  end
+
+  defp solve(matrix) do
+    rows = Enum.count(matrix)
+
+    Enum.reverse(matrix)
+    |> Enum.reduce(List.duplicate(0, rows), fn row, acc ->
+      {coefs, const} = Enum.split(row, -1)
+      diff = Enum.zip(coefs, acc) |> Enum.map(fn {coef, val} -> coef * val end) |> Enum.sum()
+      den = Enum.find_index(coefs, &(&1 != 0))
+      res = (hd(const) - diff) / Enum.at(coefs, den)
+      List.replace_at(acc, den, res)
+    end)
   end
 
   defp parse_pos_vel(line) do
