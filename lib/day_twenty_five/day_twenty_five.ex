@@ -29,6 +29,8 @@ defmodule AdventOfCode.DayTwentyFive do
     |> Enum.product()
   end
 
+  def second_star(path), do: first_star(path)
+
   defp reduce(graph, size) when map_size(graph) == size, do: graph
 
   defp reduce(graph, size) do
