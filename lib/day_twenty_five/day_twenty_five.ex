@@ -35,7 +35,7 @@ defmodule AdventOfCode.DayTwentyFive do
 
   defp reduce(graph, size) do
     node_1 = Enum.random(Map.keys(graph))
-    node_2 = Enum.random(graph[node_1]) |> elem(0)
+    node_2 = Enum.random(graph[node_1])
     reduce(contract_nodes(graph, node_1, node_2), size)
   end
 
@@ -43,29 +43,29 @@ defmodule AdventOfCode.DayTwentyFive do
     for {node, children} <- graph,
         node not in [node_1, node_2],
         into: %{} do
-      {nodes, other} =
-        Enum.split_with(children, fn {node, _orig} -> node in [node_1, node_2] end)
-
-      {node, Enum.map(nodes, fn {_node, orig} -> {"#{node_1}, #{node_2}", orig} end) ++ other}
+      {node,
+       Enum.map(children, fn
+         node when node in [node_1, node_2] -> "#{node_1}, #{node_2}"
+         node -> node
+       end)}
     end
     |> Map.put(
       "#{node_1}, #{node_2}",
       (graph[node_1] ++ graph[node_2])
-      |> Enum.split_with(fn {node, _orig} -> node in [node_1, node_2] end)
-      |> elem(1)
+      |> Enum.reject(fn node -> node in [node_1, node_2] end)
     )
   end
 
   defp process_line(line) do
     [node, children] = String.split(line, ": ")
     children_list = String.split(children, " ", trim: true)
-    {node, children_list |> Enum.map(fn child -> {child, "#{node}-#{child}"} end)}
+    {node, children_list}
   end
 
   defp add_nodes(map, node, children_list) do
-    Enum.reduce(children_list, map, fn {child_node, _}, acc ->
-      Map.update(acc, child_node, [{node, "#{child_node}-#{node}"}], fn lst ->
-        lst ++ [{node, "#{child_node}-#{node}"}]
+    Enum.reduce(children_list, map, fn child_node, acc ->
+      Map.update(acc, child_node, [node], fn lst ->
+        lst ++ [node]
       end)
     end)
   end
